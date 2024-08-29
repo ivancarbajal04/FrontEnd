@@ -1,25 +1,13 @@
-// src/hooks/useProductForm.tsx
-
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { getProductById, createProduct, updateProduct } from '../services/productService';
-import { getCategories } from '../services/categoryService';
+import {getProductById, createProduct, updateProduct } from '../services/ProductServices';
+import { getCategories } from '../services/CategoryServices';
+import { Product, Category } from '../types/types';
 import { useNavigate } from 'react-router-dom';
 
-interface Product {
-  name: string;
-  price: string;
-  categoryId: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
-
 // Define the custom hook with a productId parameter that can be a string or undefined
-const useProductForm = (productId?: string) => {
+const useProductForm = (productId?: number) => {
   // Set the state with types
-  const [product, setProduct] = useState<Product>({ name: '', price: '', categoryId: '' });
+  const [product, setProduct] = useState<Product>({ name: '', description: '', price: 1, category: 1 });
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
@@ -38,7 +26,7 @@ const useProductForm = (productId?: string) => {
       if (productId) {
         try {
           const data = await getProductById(productId);
-          setProduct({ name: data.name, price: data.price, categoryId: data.category.id });
+          setProduct({ name: data.name, description: data.description ,price: data.price, category: data.category.id });
         } catch (error: any) {
           setError(error.message);
         }

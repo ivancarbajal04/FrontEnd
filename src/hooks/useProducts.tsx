@@ -1,13 +1,6 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import { getProducts, deleteProduct } from '../services/ProductServices';
-
-// Define the types for product and product response
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  categoryId: string;
-}
+import {Product, Category} from '../types/types'
 
 interface ProductResponse {
   products: Product[];
@@ -35,7 +28,7 @@ const useProducts = (initialRowsPerPage: number = 10) => {
     fetchProducts();
   }, [page, rowsPerPage]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     try {
       await deleteProduct(id);
       setProducts(products.filter(product => product.id !== id));

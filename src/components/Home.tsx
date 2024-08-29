@@ -2,18 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Table, TableBody, TableCell, TableHead, TableRow, TablePagination } from '@mui/material';
 import useProducts from '../hooks/useProducts';
-
-// Definición de los tipos para los productos y categorías
-interface Category {
-  name: string;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  category: Category;
-}
+import { Product } from '../types/types'; // Asegúrate de que la ruta sea correcta
 
 const Home: React.FC = () => {
   const navigate = useNavigate();

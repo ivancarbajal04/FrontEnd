@@ -4,18 +4,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, TextField, MenuItem } from '@mui/material';
 import useProductForm from '../hooks/useProductForm';
-
-// Definición de los tipos para los productos y categorías
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface Product {
-  name: string;
-  price: number;
-  categoryId: number;
-}
+import { Product, Category } from '../types/types';
 
 const ProductForm: React.FC = () => {
   const { id } = useParams<{ id?: string }>(); // El id puede ser undefined si es un producto nuevo

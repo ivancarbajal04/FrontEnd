@@ -5,19 +5,7 @@ import axios from 'axios';
 // URL base de la API
 const API_URL = '/api/products';
 
-// Definición de los tipos para los productos
-interface Category {
-  id: number;
-  name: string;
-}
-
-interface Product {
-  id?: number;
-  name: string;
-  description: string;
-  price: number;
-  category: Category;
-}
+import { Product, Category } from '../types/types';
 
 // Obtener productos con paginación y ordenamiento
 export const getProducts = async (
@@ -30,7 +18,7 @@ export const getProducts = async (
     const response = await axios.get<Product[]>(`${API_URL}?page=${page}&limit=${limit}&sortBy=${sortBy}&order=${order}`);
     return response.data;
   } catch (error) {
-    // throw error.response ? error.response.data : new Error('Error al obtener productos');
+    throw error.response ? error.response.data : new Error('Error al obtener productos');
   }
 };
 
@@ -40,7 +28,7 @@ export const getProductById = async (id: number): Promise<Product> => {
     const response = await axios.get<Product>(`${API_URL}/${id}`);
     return response.data;
   } catch (error) {
-    // throw error.response ? error.response.data : new Error('Error al obtener el producto');
+    throw error.response ? error.response.data : new Error('Error al obtener el producto');
   }
 };
 
@@ -50,7 +38,7 @@ export const createProduct = async (productData: Product): Promise<Product> => {
     const response = await axios.post<Product>(API_URL, productData);
     return response.data;
   } catch (error) {
-    // throw error.response ? error.response.data : new Error('Error al crear el producto');
+    throw error.response ? error.response.data : new Error('Error al crear el producto');
   }
 };
 
@@ -60,7 +48,7 @@ export const updateProduct = async (id: number, productData: Product): Promise<P
     const response = await axios.put<Product>(`${API_URL}/${id}`, productData);
     return response.data;
   } catch (error) {
-    // throw error.response ? error.response.data : new Error('Error al actualizar el producto');
+    throw error.response ? error.response.data : new Error('Error al actualizar el producto');
   }
 };
 
@@ -69,6 +57,6 @@ export const deleteProduct = async (id: number): Promise<void> => {
   try {
     await axios.delete(`${API_URL}/${id}`);
   } catch (error) {
-    // throw error.response ? error.response.data : new Error('Error al eliminar el producto');
+    throw error.response ? error.response.data : new Error('Error al eliminar el producto');
   }
 };
