@@ -1,25 +1,20 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import { getProducts, deleteProduct } from '../services/ProductServices';
-import {Product, Category} from '../types/types'
-
-interface ProductResponse {
-  products: Product[];
-  total: number;
-}
+import { Product } from '../types/types';
 
 const useProducts = (initialRowsPerPage: number = 10) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(initialRowsPerPage);
-  const [totalProducts, setTotalProducts] = useState<number>(0);
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data: ProductResponse = await getProducts(page + 1, rowsPerPage);
-        setProducts(data.products);
-        setTotalProducts(data.total);
+
+        const response = await getProducts(page + 1, rowsPerPage);
+      
+        setProducts(response);
       } catch (error: any) {
         setError(error.message);
       }
@@ -38,7 +33,7 @@ const useProducts = (initialRowsPerPage: number = 10) => {
     }
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (newPage: number) => {
     setPage(newPage);
   };
 
@@ -49,7 +44,6 @@ const useProducts = (initialRowsPerPage: number = 10) => {
 
   return {
     products,
-    totalProducts,
     page,
     rowsPerPage,
     error,

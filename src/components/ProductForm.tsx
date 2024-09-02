@@ -1,30 +1,44 @@
-// src/components/ProductForm.tsx
-
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { Button, TextField, MenuItem } from '@mui/material';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Button, TextField, MenuItem, Box, Typography } from '@mui/material';
 import useProductForm from '../hooks/useProductForm';
-import { Product, Category } from '../types/types';
+import { Category } from '../types/types';
 
 const ProductForm: React.FC = () => {
-  const { id } = useParams<{ id?: string }>(); // El id puede ser undefined si es un producto nuevo
+  const { id } = useParams<{ id?: string }>();
+  const navigate = useNavigate();
+  const numericId = id ? parseInt(id, 10) : undefined;
+  
   const {
     product,
     categories,
     error,
     handleChange,
+    handleCategoryChange,
     handleSubmit,
-  } = useProductForm(id);
+  } = useProductForm(numericId);
 
   return (
-    <div>
-      <h1>{id ? 'Editar Producto' : 'Crear Producto'}</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <Box sx={{ maxWidth: 600, margin: 'auto', padding: 3, boxShadow: 3, borderRadius: 2 }}>
+      <Typography variant="h4" gutterBottom>
+        {id ? 'Editar Producto' : 'Crear Producto'}
+      </Typography>
+      {error && <Typography color="error">{error}</Typography>}
+      
       <form onSubmit={handleSubmit}>
         <TextField
           label="Nombre"
           name="name"
-          value={product.name}
+          value={product.name || ''}
+          onChange={handleChange}
+          required
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Descripción"
+          name="description"
+          value={product.description || ''}
           onChange={handleChange}
           required
           fullWidth
@@ -34,7 +48,7 @@ const ProductForm: React.FC = () => {
           label="Precio"
           name="price"
           type="number"
-          value={product.price}
+          value={product.price || ''}
           onChange={handleChange}
           required
           fullWidth
@@ -42,25 +56,35 @@ const ProductForm: React.FC = () => {
         />
         <TextField
           label="Categoría"
-          name="categoryId"
+          name="category_id"
           select
-          value={product.categoryId}
-          onChange={handleChange}
+          value={product.category_id || ''}
+          onChange={handleCategoryChange}
           required
           fullWidth
           margin="normal"
         >
-          {/* {categories.map((category: Category) => (
+          {categories.map((category: Category) => (
             <MenuItem key={category.id} value={category.id}>
               {category.name}
             </MenuItem>
-          ))} */}
+          ))}
         </TextField>
-        <Button variant="contained" color="primary" type="submit">
-          {id ? 'Actualizar Producto' : 'Crear Producto'}
-        </Button>
+        
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+          <Button variant="contained" color="primary" type="submit">
+            {id ? 'Actualizar Producto' : 'Crear Producto'}
+          </Button>
+          <Button 
+            variant="contained" 
+            color="secondary" 
+            onClick={() => navigate('/Home')}
+          >
+            Cancelar
+          </Button>
+        </Box>
       </form>
-    </div>
+    </Box>
   );
 };
 
