@@ -33,7 +33,7 @@ const CategoryModal: FC<CategoryModalProps> = ({ open, onClose }) => {
       await handleSubmit(e);
       onClose();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -42,7 +42,7 @@ const CategoryModal: FC<CategoryModalProps> = ({ open, onClose }) => {
       await handleDelete();
       onClose();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 

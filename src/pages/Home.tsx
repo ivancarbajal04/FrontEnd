@@ -12,6 +12,11 @@ import {
   Paper,
   Box,
   Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent
 } from '@mui/material';
 import useProducts from '../hooks/useProducts';
 import CategoryModal from '../components/CategoryModal';
@@ -24,14 +29,23 @@ const Home: React.FC = () => {
     products,
     page,
     rowsPerPage,
+    totalProducts,
     error,
     handleDelete,
     handleChangePage,
     handleChangeRowsPerPage,
+    handleSortChange,
+    sortBy,
+    order
   } = useProducts();
 
   const handlePageChange = (_event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number) => {
     handleChangePage(newPage);
+  };
+
+  const handleSortChangeLocal = (event: SelectChangeEvent<string>) => {
+    const [newSortBy, newOrder] = event.target.value.split('|');
+    handleSortChange(newSortBy, newOrder as 'asc' | 'desc');
   };
 
   return (
@@ -52,6 +66,25 @@ const Home: React.FC = () => {
         <Button variant="contained" color="secondary" onClick={() => setModalOpen(true)}>
           Gestionar Categorías
         </Button>
+      </Stack>
+
+      {/* Controles de ordenación */}
+      <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+        <FormControl>
+          <InputLabel>Ordenar por</InputLabel>
+          <Select
+            value={`${sortBy}|${order}`}
+            onChange={handleSortChangeLocal}
+            label="Ordenar por"
+          >
+            <MenuItem value="name|asc">Nombre Ascendente</MenuItem>
+            <MenuItem value="name|desc">Nombre Descendente</MenuItem>
+            <MenuItem value="price|asc">Precio Ascendente</MenuItem>
+            <MenuItem value="price|desc">Precio Descendente</MenuItem>
+            <MenuItem value="created_at|asc">Fecha Ascendente</MenuItem>
+            <MenuItem value="created_at|desc">Fecha Descendente</MenuItem>
+          </Select>
+        </FormControl>
       </Stack>
 
       <Paper elevation={3} sx={{ mb: 3 }}>
@@ -95,10 +128,10 @@ const Home: React.FC = () => {
         </Table>
         <TablePagination
           component="div"
-          count={100}
-          page={page ?? 0}
+          count={totalProducts}
+          page={page}
           onPageChange={handlePageChange}
-          rowsPerPage={rowsPerPage ?? 10}
+          rowsPerPage={rowsPerPage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>

@@ -5,8 +5,21 @@ const API_URL = 'http://localhost:8000/products';
 
 import { Product } from '../types/types';
 
+// Estructura de la respuesta de la API
 interface ApiResponse<T> {
+  current_page: number;
   data: T;
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: Array<{ url: string | null; label: string; active: boolean }>;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
 }
 
 // Obtener productos con paginación y ordenamiento
@@ -15,10 +28,10 @@ export const getProducts = async (
   limit: number = 10,
   sortBy: string = 'name',
   order: 'asc' | 'desc' = 'asc'
-): Promise<Product[]> => {
+): Promise<ApiResponse<Product[]>> => {
   try {
-    const response = await axios.get<ApiResponse<Product[]>>(`${API_URL}?page=${page}&limit=${limit}&sortBy=${sortBy}&order=${order}`);
-    return response.data.data; 
+    const response = await axios.get<ApiResponse<Product[]>>(`${API_URL}?page=${page}&per_page=${limit}&sortBy=${sortBy}&order=${order}`);
+    return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw error.response ? error.response.data : new Error('Error al obtener productos');
@@ -30,7 +43,6 @@ export const getProducts = async (
 // Obtener producto por ID
 export const getProductById = async (id: number): Promise<Product> => {
   try {
-
     const response = await axios.get<Product>(`${API_URL}/${id}`);
     return response.data;
   } catch (error) {
@@ -48,7 +60,6 @@ export const createProduct = async (productData: Product): Promise<Product> => {
     productData.price = Number(productData.price)
     const response = await axios.post<Product>(API_URL, productData);
     return response.data;
-
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw error.response ? error.response.data : new Error('Error al crear el producto');
