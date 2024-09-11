@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 const useProductForm = (productId?: number) => {
   const [product, setProduct] = useState<Product>({ name: '', description: '', price: 0, category_id: 0 });
   const [categories, setCategories] = useState<Category[]>([]);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string | null>(null); // Cambiar a string | null para manejar la ausencia de errores
+  const [loading, setLoading] = useState<boolean>(false); // Agregar estado de carga
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,7 +17,7 @@ const useProductForm = (productId?: number) => {
         const data = await getCategories();
         setCategories(data);
       } catch (error: any) {
-        setError(error.message);
+        setError(error.message || 'Error al obtener categorías');
       }
     };
 
@@ -28,22 +29,20 @@ const useProductForm = (productId?: number) => {
       if (productId) {
         try {
           const data = await getProductById(productId);
-          const category = categories.find(cat => cat.id === data.category_id) || { id: 0, name: '', description: '' };
           setProduct({
             name: data.name,
             description: data.description,
             price: data.price,
             category_id: data.category_id,
-            category,
           });
         } catch (error: any) {
-          setError(error.message);
+          setError(error.message || 'Error al obtener el producto');
         }
       }
     };
 
     fetchProduct();
-  }, [productId, categories]);
+  }, [productId]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -55,28 +54,28 @@ const useProductForm = (productId?: number) => {
 
   const handleCategoryChange = (e: ChangeEvent<{ value: unknown }>) => {
     const selectedCategoryId = e.target.value as number;
-    const selectedCategory = categories.find(cat => cat.id === selectedCategoryId);
     setProduct(prevProduct => ({
       ...prevProduct,
       category_id: selectedCategoryId,
-      category: selectedCategory || {id: 0, name: '', description: ''}, 
     }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setLoading(true); // Activar el estado de carga
     try {
-      const productToSend = { ...product, category: undefined };
       if (productId) {
-        await updateProduct(productId, productToSend);
+        await updateProduct(productId, product);
         alert('Producto actualizado correctamente.');
       } else {
-        await createProduct(productToSend);
+        await createProduct(product);
         alert('Producto creado correctamente.');
       }
       navigate('/Home');
     } catch (error: any) {
-      setError(error.message);
+      setError(error.message || 'Error al procesar la solicitud');
+    } finally {
+      setLoading(false); // Desactivar el estado de carga
     }
   };
 
@@ -84,9 +83,10 @@ const useProductForm = (productId?: number) => {
     product,
     categories,
     error,
+    loading, // Exponer el estado de carga
     handleChange,
     handleCategoryChange,
-    handleSubmit
+    handleSubmit,
   };
 };
 

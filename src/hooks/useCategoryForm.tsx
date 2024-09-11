@@ -1,7 +1,7 @@
-// src/hooks/useCategoryForm.ts
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { createCategory, updateCategory, deleteCategory, getCategories } from '../services/CategoryServices';
 import { Category } from '../types/types';
+// import axios from 'axios';
 
 const useCategoryForm = (categoryId?: number) => {
   const [category, setCategory] = useState<Category>({ id: 0, name: '', description: '' });
@@ -50,16 +50,36 @@ const useCategoryForm = (categoryId?: number) => {
   };
 
   const handleDelete = async () => {
-    try {
-      if (categoryId) {
+    if (categoryId) {
+      try {
+        console.log('Intentando eliminar categoría:', categoryId);
+        // Intentar eliminar la categoría sin forzar
         await deleteCategory(categoryId);
         alert('Categoría eliminada correctamente.');
         setCategory({ id: 0, name: '', description: '' });
+      } catch (error: any) {
+        console.log('Error al eliminar:', error);
+  
+        if (error.status === 400) {
+          const message = error.message;
+          const relatedProductsCount = error.relatedProductsCount;
+  
+          console.log('Mensaje de error:', message);
+          console.log('Cantidad de productos relacionados:', relatedProductsCount);
+  
+          const confirmed = window.confirm(`${message} (Productos relacionados: ${relatedProductsCount})`);
+          if (confirmed) {
+            console.log('Confirmado, intentando forzar eliminación.');
+            await deleteCategory(categoryId, true);
+            alert('Categoría eliminada correctamente.');
+            setCategory({ id: 0, name: '', description: '' });
+          }
+        } else {
+          setError(error.message);
+        }
       }
-    } catch (error: any) {
-      setError(error.message);
     }
-  };
+  };  
 
   return {
     category,

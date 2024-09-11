@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../api/axiosInstance'; // Importa axiosInstance
+import { isAxiosError } from 'axios'; // Importa isAxiosError
 import { TextField, Button, Container, Typography, Box, Alert, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+
+interface ValidationErrors {
+    [key: string]: string[]; // Estructura de los errores de validación
+}
 
 const Register: React.FC = () => {
     const [name, setName] = useState<string>('');
@@ -9,25 +14,30 @@ const Register: React.FC = () => {
     const [password, setPassword] = useState<string>('');
     const [passwordConfirmation, setPasswordConfirmation] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [validationErrors, setValidationErrors] = useState<ValidationErrors | null>(null);
     const navigate = useNavigate();
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage(null);
+        setValidationErrors(null);
 
         try {
-            await axios.post('http://localhost:8000/register', {
+            await axiosInstance.post('/register', {
                 name,
                 email,
                 password,
                 password_confirmation: passwordConfirmation
             });
-            navigate('/'); // Redirect to home or another page after successful registration
+            navigate('/'); // Redirigir a otra página después del registro exitoso
         } catch (error: any) {
-            if (axios.isAxiosError(error) && error.response) {
-                const errors = error.response.data.errors;
-                const message = Object.values(errors).flat().join(' ');
-                setErrorMessage(message || 'Error de registro. Por favor, intenta de nuevo.');
+            if (isAxiosError(error)) { // Usa isAxiosError para verificar el error
+                if (error.response?.status === 422) {
+                    // Mostrar errores de validación específicos
+                    setValidationErrors(error.response.data.errors);
+                } else {
+                    setErrorMessage(error.response?.data?.error || 'Error de registro. Por favor, intenta de nuevo.');
+                }
             } else {
                 setErrorMessage('Error inesperado. Por favor, intenta de nuevo.');
             }
@@ -56,6 +66,15 @@ const Register: React.FC = () => {
                         {errorMessage}
                     </Alert>
                 )}
+                {validationErrors && (
+                    <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
+                        {Object.entries(validationErrors).map(([field, messages]) => (
+                            <div key={field}>
+                                <strong>{field}</strong>: {messages.join(', ')}
+                            </div>
+                        ))}
+                    </Alert>
+                )}
                 <form onSubmit={handleRegister} style={{ width: '100%' }}>
                     <TextField
                         label="Nombre"
@@ -64,7 +83,6 @@ const Register: React.FC = () => {
                         margin="normal"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        required
                     />
                     <TextField
                         label="Email"
@@ -74,7 +92,6 @@ const Register: React.FC = () => {
                         margin="normal"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        required
                     />
                     <TextField
                         label="Contraseña"
@@ -84,8 +101,6 @@ const Register: React.FC = () => {
                         margin="normal"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required
-                        inputProps={{ minLength: 8 }}
                     />
                     <TextField
                         label="Confirmar Contraseña"
@@ -95,7 +110,6 @@ const Register: React.FC = () => {
                         margin="normal"
                         value={passwordConfirmation}
                         onChange={(e) => setPasswordConfirmation(e.target.value)}
-                        required
                     />
                     <Button
                         type="submit"

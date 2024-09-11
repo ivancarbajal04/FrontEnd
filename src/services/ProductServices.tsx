@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
 
 // URL base de la API
-const API_URL = 'http://localhost:8000/products';
+const API_URL = '/products';
 
 import { Product } from '../types/types';
 
@@ -30,65 +30,49 @@ export const getProducts = async (
   order: 'asc' | 'desc' = 'asc'
 ): Promise<ApiResponse<Product[]>> => {
   try {
-    const response = await axios.get<ApiResponse<Product[]>>(`${API_URL}?page=${page}&per_page=${limit}&sortBy=${sortBy}&order=${order}`);
+    const response = await axiosInstance.get<ApiResponse<Product[]>>(`${API_URL}?page=${page}&per_page=${limit}&sortBy=${sortBy}&order=${order}`);
     return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw error.response ? error.response.data : new Error('Error al obtener productos');
-    }
-    throw new Error('Error desconocido al obtener productos');
+  } catch (error:any) {
+    throw new Error(error.message || 'Error al obtener productos');
   }
 };
 
 // Obtener producto por ID
 export const getProductById = async (id: number): Promise<Product> => {
   try {
-    const response = await axios.get<Product>(`${API_URL}/${id}`);
+    const response = await axiosInstance.get<Product>(`${API_URL}/${id}`);
     return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw error.response ? error.response.data : new Error('Error al obtener producto');
-    }
-    throw new Error('Error desconocido al obtener el producto');
+  } catch (error: any) {
+    throw new Error(error.message || 'Error al obtener producto');
   }
 };
 
 // Crear un nuevo producto
 export const createProduct = async (productData: Product): Promise<Product> => {
-  console.log('Datos enviados:', productData);
   try {
-    productData.price = Number(productData.price)
-    const response = await axios.post<Product>(API_URL, productData);
+    productData.price = Number(productData.price);
+    const response = await axiosInstance.post<Product>(API_URL, productData);
     return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw error.response ? error.response.data : new Error('Error al crear el producto');
-    }
-    throw new Error('Error desconocido al crear el producto');
+  } catch (error: any) {
+    throw new Error(error.message || 'Error al crear el producto');
   }
 };
 
 // Actualizar un producto existente
 export const updateProduct = async (id: number, productData: Product): Promise<Product> => {
   try {
-    const response = await axios.put<Product>(`${API_URL}/${id}`, productData);
+    const response = await axiosInstance.put<Product>(`${API_URL}/${id}`, productData);
     return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw error.response ? error.response.data : new Error('Error al actualizar el producto');
-    }
-    throw new Error('Error desconocido al actualizar el producto');
+  } catch (error: any) {
+    throw new Error(error.message || 'Error al actualizar el producto');
   }
 };
 
 // Eliminar un producto
 export const deleteProduct = async (id: number): Promise<void> => {
   try {
-    await axios.delete(`${API_URL}/${id}`);
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw error.response ? error.response.data : new Error('Error al eliminar el producto');
-    }
-    throw new Error('Error desconocido al eliminar el producto');
+    await axiosInstance.delete(`${API_URL}/${id}`);
+  } catch (error: any) {
+    throw new Error(error.message || 'Error al eliminar el producto');
   }
 };

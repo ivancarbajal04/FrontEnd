@@ -1,3 +1,4 @@
+// src/components/CategoryModal.tsx
 import React, { FC, useState, useEffect } from 'react';
 import { Modal, Button, TextField, Typography, Box, MenuItem, Select, FormControl, SelectChangeEvent, Grid } from '@mui/material';
 import useCategoryForm from '../hooks/useCategoryForm';
@@ -39,12 +40,15 @@ const CategoryModal: FC<CategoryModalProps> = ({ open, onClose }) => {
 
   const handleDeleteClick = async () => {
     try {
+      console.log('Intentando eliminar categoría en modal.');
       await handleDelete();
       onClose();
     } catch (error) {
-      console.log(error);
+      console.log('Error en el modal:', error);
+      alert(error || 'Error desconocido');
     }
   };
+  
 
   return (
     <Modal open={open} onClose={onClose}>

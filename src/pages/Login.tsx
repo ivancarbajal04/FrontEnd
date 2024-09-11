@@ -1,20 +1,27 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../api/axiosInstance'; // Importa axiosInstance
+import { isAxiosError } from 'axios'; // Importa isAxiosError
 import { TextField, Button, Container, Typography, Box, Alert, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+
+interface ValidationErrors {
+    [key: string]: string[]; // Estructura de los errores de validación
+}
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [validationErrors, setValidationErrors] = useState<ValidationErrors | null>(null); // Definido con tipo
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrorMessage(null);
-
+        setValidationErrors(null);
+    
         try {
-            const response = await axios.post('http://localhost:8000/login', {
+            const response = await axiosInstance.post('/login', { // Usa axiosInstance
                 email,
                 password
             });
@@ -22,10 +29,15 @@ const Login: React.FC = () => {
             localStorage.setItem('userName', response.data.user.name);
             navigate('/Home'); 
         } catch (error: any) {
-            if (error.response && error.response.data && error.response.data.message) {
-                setErrorMessage(error.response.data.message);
+            if (isAxiosError(error)) { // Usa isAxiosError para verificar el error
+                if (error.response?.status === 422) {
+                    // Mostrar errores de validación específicos
+                    setValidationErrors(error.response.data.errors);
+                } else {
+                    setErrorMessage(error.response?.data?.error || 'Error de autenticación. Por favor, intenta de nuevo.');
+                }
             } else {
-                setErrorMessage('Error de autenticación. Por favor, intenta de nuevo.');
+                setErrorMessage('Error desconocido. Por favor, intenta de nuevo.');
             }
             console.error(error);
         }
@@ -56,6 +68,15 @@ const Login: React.FC = () => {
                         {errorMessage}
                     </Alert>
                 )}
+                {validationErrors && (
+                    <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
+                        {Object.entries(validationErrors).map(([field, messages]) => (
+                            <div key={field}>
+                                <strong>{field}</strong>: {messages.join(', ')}
+                            </div>
+                        ))}
+                    </Alert>
+                )}
                 <form onSubmit={handleLogin} style={{ width: '100%' }}>
                     <TextField
                         label="Email"
@@ -65,7 +86,6 @@ const Login: React.FC = () => {
                         margin="normal"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        required
                     />
                     <TextField
                         label="Password"
@@ -75,7 +95,6 @@ const Login: React.FC = () => {
                         margin="normal"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        required
                     />
                     <Button
                         type="submit"
@@ -88,14 +107,14 @@ const Login: React.FC = () => {
                     </Button>
                 </form>
                 <Typography variant="body2" sx={{ mt: 2 }}>
-                    ¿No tenes una cuenta?{' '}
+                    ¿No tienes una cuenta?{' '}
                     <Link
                         component="button"
                         variant="body2"
                         onClick={handleRegisterRedirect}
                         sx={{ cursor: 'pointer' }}
                     >
-                        Registrate acá
+                        Regístrate aquí
                     </Link>
                 </Typography>
             </Box>

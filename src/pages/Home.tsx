@@ -66,10 +66,6 @@ const Home: React.FC = () => {
         <Button variant="contained" color="secondary" onClick={() => setModalOpen(true)}>
           Gestionar Categorías
         </Button>
-      </Stack>
-
-      {/* Controles de ordenación */}
-      <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
         <FormControl>
           <InputLabel>Ordenar por</InputLabel>
           <Select
@@ -98,7 +94,7 @@ const Home: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {products?.map((product) => (
+            {products.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>{product.name}</TableCell>
                 <TableCell>${product.price}</TableCell>
@@ -114,7 +110,7 @@ const Home: React.FC = () => {
                         if (product.id !== undefined) {
                           handleDelete(product.id);
                         } else {
-                          console.error('El ID del producto es indefinido');
+                          console.error('El ID del producto es indefinido.');
                         }
                       }}
                     >
@@ -126,15 +122,17 @@ const Home: React.FC = () => {
             ))}
           </TableBody>
         </Table>
-        <TablePagination
-          component="div"
-          count={totalProducts}
-          page={page}
-          onPageChange={handlePageChange}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
       </Paper>
+
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25, 50]}
+        component="div"
+        count={totalProducts}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
 
       <CategoryModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </Box>

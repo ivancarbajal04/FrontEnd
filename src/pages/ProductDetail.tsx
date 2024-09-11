@@ -28,8 +28,8 @@ const ProductDetail: React.FC = () => {
         }
 
         setLoading(false);
-      } catch (error) {
-        setError((error as Error).message);
+      } catch (error: any) {
+        setError(error.response?.data?.message || 'Error al cargar los datos');
         setLoading(false);
       }
     };
@@ -65,8 +65,8 @@ const ProductDetail: React.FC = () => {
         await updateProduct(Number(id), editedProduct);
         alert("Producto actualizado correctamente.");
         navigate('/Home');
-      } catch (error) {
-        setError((error as Error).message);
+      } catch (error: any) {
+        setError(error.response?.data?.message || 'Error al actualizar el producto');
       }
     }
   };
@@ -77,8 +77,8 @@ const ProductDetail: React.FC = () => {
         await deleteProduct(Number(id));
         alert("Producto eliminado correctamente.");
         navigate('/Home');
-      } catch (error) {
-        setError((error as Error).message);
+      } catch (error: any) {
+        setError(error.response?.data?.message || 'Error al eliminar el producto');
       }
     }
   };
