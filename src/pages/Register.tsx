@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import axiosInstance from '../api/axiosInstance'; // Importa axiosInstance
-import { isAxiosError } from 'axios'; // Importa isAxiosError
+import axiosInstance from '../api/axiosInstance';
+import { isAxiosError } from 'axios';
 import { TextField, Button, Container, Typography, Box, Alert, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 interface ValidationErrors {
-    [key: string]: string[]; // Estructura de los errores de validación
+    [key: string]: string[];
 }
 
 const Register: React.FC = () => {
@@ -29,11 +29,10 @@ const Register: React.FC = () => {
                 password,
                 password_confirmation: passwordConfirmation
             });
-            navigate('/'); // Redirigir a otra página después del registro exitoso
+            navigate('/');
         } catch (error: any) {
-            if (isAxiosError(error)) { // Usa isAxiosError para verificar el error
+            if (isAxiosError(error)) {
                 if (error.response?.status === 422) {
-                    // Mostrar errores de validación específicos
                     setValidationErrors(error.response.data.errors);
                 } else {
                     setErrorMessage(error.response?.data?.error || 'Error de registro. Por favor, intenta de nuevo.');
@@ -41,7 +40,7 @@ const Register: React.FC = () => {
             } else {
                 setErrorMessage('Error inesperado. Por favor, intenta de nuevo.');
             }
-            console.error(error); // Log the error for debugging
+            console.error(error);
         }
     };
 

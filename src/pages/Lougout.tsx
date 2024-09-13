@@ -1,6 +1,6 @@
-import React, { useState } from 'react'; // Asegúrate de importar useState desde React
-import axiosInstance from '../api/axiosInstance'; // Importa axiosInstance
-import { isAxiosError } from 'axios'; // Importa isAxiosError
+import React, { useState } from 'react';
+import axiosInstance from '../api/axiosInstance';
+import { isAxiosError } from 'axios';
 import { Button, Container, Typography, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,7 +25,7 @@ const Logout: React.FC = () => {
             } else {
                 setErrorMessage('Error inesperado. Por favor, intenta de nuevo.');
             }
-            console.error(error); // Log the error for debugging
+            console.error(error);
         }
     };
 

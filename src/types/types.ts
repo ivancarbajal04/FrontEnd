@@ -1,5 +1,3 @@
-// src/types/types.ts
-
 export interface Category {
     id: number;
     name: string;

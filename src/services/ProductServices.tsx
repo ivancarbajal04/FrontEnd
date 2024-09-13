@@ -1,11 +1,9 @@
 import axiosInstance from '../api/axiosInstance';
 
-// URL base de la API
 const API_URL = '/products';
 
 import { Product } from '../types/types';
 
-// Estructura de la respuesta de la API
 interface ApiResponse<T> {
   current_page: number;
   data: T;
@@ -22,7 +20,6 @@ interface ApiResponse<T> {
   total: number;
 }
 
-// Obtener productos con paginación y ordenamiento
 export const getProducts = async (
   page: number = 1,
   limit: number = 10,
@@ -37,7 +34,6 @@ export const getProducts = async (
   }
 };
 
-// Obtener producto por ID
 export const getProductById = async (id: number): Promise<Product> => {
   try {
     const response = await axiosInstance.get<Product>(`${API_URL}/${id}`);
@@ -47,7 +43,6 @@ export const getProductById = async (id: number): Promise<Product> => {
   }
 };
 
-// Crear un nuevo producto
 export const createProduct = async (productData: Product): Promise<Product> => {
   try {
     productData.price = Number(productData.price);
@@ -58,7 +53,6 @@ export const createProduct = async (productData: Product): Promise<Product> => {
   }
 };
 
-// Actualizar un producto existente
 export const updateProduct = async (id: number, productData: Product): Promise<Product> => {
   try {
     const response = await axiosInstance.put<Product>(`${API_URL}/${id}`, productData);
@@ -68,7 +62,6 @@ export const updateProduct = async (id: number, productData: Product): Promise<P
   }
 };
 
-// Eliminar un producto
 export const deleteProduct = async (id: number): Promise<void> => {
   try {
     await axiosInstance.delete(`${API_URL}/${id}`);

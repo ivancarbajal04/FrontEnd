@@ -7,7 +7,7 @@ interface UseProductsReturn {
   page: number;
   rowsPerPage: number;
   totalProducts: number;
-  error: string | null; // Cambiar a string | null para manejar la ausencia de errores
+  error: string | null;
   handleDelete: (id: number) => Promise<void>;
   handleChangePage: (newPage: number) => void;
   handleChangeRowsPerPage: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -18,10 +18,10 @@ interface UseProductsReturn {
 
 const useProducts = (initialRowsPerPage: number = 10): UseProductsReturn => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [page, setPage] = useState<number>(0); // Página inicial (0 para el índice basado en 0)
+  const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(initialRowsPerPage);
   const [totalProducts, setTotalProducts] = useState<number>(0);
-  const [error, setError] = useState<string | null>(null); // Cambiar a string | null
+  const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string>('name');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 

@@ -7,8 +7,8 @@ import { useNavigate } from 'react-router-dom';
 const useProductForm = (productId?: number) => {
   const [product, setProduct] = useState<Product>({ name: '', description: '', price: 0, category_id: 0 });
   const [categories, setCategories] = useState<Category[]>([]);
-  const [error, setError] = useState<string | null>(null); // Cambiar a string | null para manejar la ausencia de errores
-  const [loading, setLoading] = useState<boolean>(false); // Agregar estado de carga
+  const [error, setError] = useState<string | null>(null); 
+  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,7 +62,7 @@ const useProductForm = (productId?: number) => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true); // Activar el estado de carga
+    setLoading(true); 
     try {
       if (productId) {
         await updateProduct(productId, product);
@@ -75,7 +75,7 @@ const useProductForm = (productId?: number) => {
     } catch (error: any) {
       setError(error.message || 'Error al procesar la solicitud');
     } finally {
-      setLoading(false); // Desactivar el estado de carga
+      setLoading(false); 
     }
   };
 
@@ -83,7 +83,7 @@ const useProductForm = (productId?: number) => {
     product,
     categories,
     error,
-    loading, // Exponer el estado de carga
+    loading,
     handleChange,
     handleCategoryChange,
     handleSubmit,

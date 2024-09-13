@@ -16,8 +16,7 @@ const ProductForm: React.FC = () => {
     handleCategoryChange,
     handleSubmit,
   } = useProductForm(numericId);
-
-  // Local state to manage field-specific errors
+  
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
   const validateFields = () => {
@@ -37,7 +36,6 @@ const ProductForm: React.FC = () => {
         await handleSubmit(e);
         navigate('/Home');
       } catch (error: any) {
-        // Set global error if needed
         setFieldErrors({ global: error.message });
       }
     }

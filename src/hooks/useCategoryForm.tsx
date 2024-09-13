@@ -1,7 +1,6 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { createCategory, updateCategory, deleteCategory, getCategories } from '../services/CategoryServices';
 import { Category } from '../types/types';
-// import axios from 'axios';
 
 const useCategoryForm = (categoryId?: number) => {
   const [category, setCategory] = useState<Category>({ id: 0, name: '', description: '' });
@@ -53,7 +52,6 @@ const useCategoryForm = (categoryId?: number) => {
     if (categoryId) {
       try {
         console.log('Intentando eliminar categoría:', categoryId);
-        // Intentar eliminar la categoría sin forzar
         await deleteCategory(categoryId);
         alert('Categoría eliminada correctamente.');
         setCategory({ id: 0, name: '', description: '' });

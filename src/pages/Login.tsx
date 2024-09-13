@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import axiosInstance from '../api/axiosInstance'; // Importa axiosInstance
-import { isAxiosError } from 'axios'; // Importa isAxiosError
+import axiosInstance from '../api/axiosInstance'; 
+import { isAxiosError } from 'axios';
 import { TextField, Button, Container, Typography, Box, Alert, Link } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 interface ValidationErrors {
-    [key: string]: string[]; // Estructura de los errores de validación
+    [key: string]: string[];
 }
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [validationErrors, setValidationErrors] = useState<ValidationErrors | null>(null); // Definido con tipo
+    const [validationErrors, setValidationErrors] = useState<ValidationErrors | null>(null);
     const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -21,7 +21,7 @@ const Login: React.FC = () => {
         setValidationErrors(null);
     
         try {
-            const response = await axiosInstance.post('/login', { // Usa axiosInstance
+            const response = await axiosInstance.post('/login', { 
                 email,
                 password
             });
@@ -29,9 +29,8 @@ const Login: React.FC = () => {
             localStorage.setItem('userName', response.data.user.name);
             navigate('/Home'); 
         } catch (error: any) {
-            if (isAxiosError(error)) { // Usa isAxiosError para verificar el error
+            if (isAxiosError(error)) { 
                 if (error.response?.status === 422) {
-                    // Mostrar errores de validación específicos
                     setValidationErrors(error.response.data.errors);
                 } else {
                     setErrorMessage(error.response?.data?.error || 'Error de autenticación. Por favor, intenta de nuevo.');
