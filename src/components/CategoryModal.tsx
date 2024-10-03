@@ -1,4 +1,3 @@
-// src/components/CategoryModal.tsx
 import React, { FC, useState, useEffect } from 'react';
 import { Modal, Button, TextField, Typography, Box, MenuItem, Select, FormControl, SelectChangeEvent, Grid } from '@mui/material';
 import useCategoryForm from '../hooks/useCategoryForm';
@@ -11,7 +10,7 @@ interface CategoryModalProps {
 
 const CategoryModal: FC<CategoryModalProps> = ({ open, onClose }) => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>(undefined);
-  const { category, categories, error, handleChange, handleSubmit, handleDelete } = useCategoryForm(selectedCategoryId);
+  const { category, categories, error, handleChange, handleSubmit, handleDelete, setError } = useCategoryForm(selectedCategoryId);
 
   const handleCategorySelect = (event: SelectChangeEvent<number>) => {
     const id = event.target.value as number;
@@ -25,16 +24,19 @@ const CategoryModal: FC<CategoryModalProps> = ({ open, onClose }) => {
   useEffect(() => {
     if (!open) {
       setSelectedCategoryId(undefined);
+      setError(null);
     }
-  }, [open]);
+  }, [open, setError]); 
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await handleSubmit(e);
-      onClose();
+      const success = await handleSubmit(e);
+      if (success) {
+        onClose();
+      }
     } catch (error) {
-      console.log(error);
+      console.error('Error en la creación/actualización:', error);
     }
   };
 
@@ -42,13 +44,13 @@ const CategoryModal: FC<CategoryModalProps> = ({ open, onClose }) => {
     try {
       console.log('Intentando eliminar categoría en modal.');
       await handleDelete();
-      onClose();
+      onClose(); 
     } catch (error) {
       console.log('Error en el modal:', error);
-      alert(error || 'Error desconocido');
     }
   };
-  
+
+  const formErrors = error?.errors || {};
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -69,11 +71,6 @@ const CategoryModal: FC<CategoryModalProps> = ({ open, onClose }) => {
         <Typography variant="h5" gutterBottom align="center">
           {selectedCategoryId ? 'Editar Categoría' : 'Crear Nueva Categoría'}
         </Typography>
-        {error && (
-          <Typography color="error" align="center">
-            {error}
-          </Typography>
-        )}
 
         <FormControl fullWidth variant="outlined">
           <Select
@@ -101,7 +98,8 @@ const CategoryModal: FC<CategoryModalProps> = ({ open, onClose }) => {
                 name="name"
                 value={category.name || ''}
                 onChange={handleChange}
-                required
+                error={!!formErrors.name}
+                helperText={formErrors.name} 
                 fullWidth
                 variant="outlined"
               />
@@ -112,7 +110,8 @@ const CategoryModal: FC<CategoryModalProps> = ({ open, onClose }) => {
                 name="description"
                 value={category.description || ''}
                 onChange={handleChange}
-                required
+                error={!!formErrors.description}
+                helperText={formErrors.description} 
                 fullWidth
                 variant="outlined"
               />

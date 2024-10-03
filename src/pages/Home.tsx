@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Button,
@@ -19,11 +19,17 @@ import {
   SelectChangeEvent
 } from '@mui/material';
 import useProducts from '../hooks/useProducts';
+import { getCategories } from '../services/CategoryServices';
+import { Category } from '../types/types';
 import CategoryModal from '../components/CategoryModal';
+import ChartComponent from '../components/ChartComponent';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [chartOpen, setChartOpen] = useState<boolean>(false);
+  const [categories, setCategories] = useState<Category[]>([])
+
 
   const {
     products,
@@ -36,8 +42,22 @@ const Home: React.FC = () => {
     handleChangeRowsPerPage,
     handleSortChange,
     sortBy,
-    order
+    order,
   } = useProducts();
+
+
+    const fetchCategories = async () => {
+      try {
+        const fetchedCategories = await getCategories();
+        setCategories(fetchedCategories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handlePageChange = (_event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null, newPage: number) => {
     handleChangePage(newPage);
@@ -46,6 +66,20 @@ const Home: React.FC = () => {
   const handleSortChangeLocal = (event: SelectChangeEvent<string>) => {
     const [newSortBy, newOrder] = event.target.value.split('|');
     handleSortChange(newSortBy, newOrder as 'asc' | 'desc');
+  };
+
+  const handleDeleteClick = async (id: number) => {
+    try {
+      await handleDelete(id);
+      alert('Producto eliminado correctamente');
+    } catch (err) {
+      console.error('Error al eliminar el producto:', err);
+    }
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    fetchCategories();
   };
 
   return (
@@ -58,13 +92,21 @@ const Home: React.FC = () => {
           {error}
         </Typography>
       )}
-      
+
       <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
         <Button variant="contained" color="primary" onClick={() => navigate('/AgregarProducto')}>
           Crear Producto
         </Button>
         <Button variant="contained" color="secondary" onClick={() => setModalOpen(true)}>
           Gestionar Categorías
+        </Button>
+        <Button
+          variant="contained"
+          color="warning"
+          onClick={() => setChartOpen(true)}
+          disabled={categories.length === 0}
+        >
+          Ver Gráfico
         </Button>
         <FormControl>
           <InputLabel>Ordenar por</InputLabel>
@@ -108,7 +150,7 @@ const Home: React.FC = () => {
                       color="secondary"
                       onClick={() => {
                         if (product.id !== undefined) {
-                          handleDelete(product.id);
+                          handleDeleteClick(product.id);
                         } else {
                           console.error('El ID del producto es indefinido.');
                         }
@@ -134,7 +176,8 @@ const Home: React.FC = () => {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
-      <CategoryModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <ChartComponent open={chartOpen} onClose={() => setChartOpen(false)} />
+      <CategoryModal open={modalOpen} onClose={handleModalClose} />
     </Box>
   );
 };

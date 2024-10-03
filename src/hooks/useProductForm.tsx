@@ -3,11 +3,17 @@ import { getProductById, createProduct, updateProduct } from '../services/Produc
 import { getCategories } from '../services/CategoryServices';
 import { Product, Category } from '../types/types';
 import { useNavigate } from 'react-router-dom';
+interface ErrorResponse {
+  message?: string;
+  errors?: {
+    [key: string]: string; 
+  };
+}
 
 const useProductForm = (productId?: number) => {
   const [product, setProduct] = useState<Product>({ name: '', description: '', price: 0, category_id: 0 });
   const [categories, setCategories] = useState<Category[]>([]);
-  const [error, setError] = useState<string | null>(null); 
+  const [error, setError] = useState<ErrorResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -62,7 +68,8 @@ const useProductForm = (productId?: number) => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true); 
+    setLoading(true);
+    setError(null); 
     try {
       if (productId) {
         await updateProduct(productId, product);
@@ -73,11 +80,22 @@ const useProductForm = (productId?: number) => {
       }
       navigate('/Home');
     } catch (error: any) {
-      setError(error.message || 'Error al procesar la solicitud');
+      if (error.errors) {
+        setError({
+          message: error.message, 
+          errors: error.errors     
+        });
+      } else {
+        setError({
+          message: error.message || 'Error inesperado al crear el producto'
+        });
+      }
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
+
+
 
   return {
     product,

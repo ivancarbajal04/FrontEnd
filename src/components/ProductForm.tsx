@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, TextField, MenuItem, Box, Typography } from '@mui/material';
 import useProductForm from '../hooks/useProductForm';
@@ -15,30 +15,21 @@ const ProductForm: React.FC = () => {
     handleChange,
     handleCategoryChange,
     handleSubmit,
+    error
   } = useProductForm(numericId);
-  
+
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
 
-  const validateFields = () => {
-    const errors: { [key: string]: string } = {};
-    if (!product.name) errors.name = 'El nombre es obligatorio';
-    if (!product.description) errors.description = 'La descripción es obligatoria';
-    if (product.price <= 0) errors.price = 'El precio debe ser mayor a 0';
-    if (product.category_id === 0) errors.category_id = 'La categoría es obligatoria';
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
+  useEffect(() => {
+    if (error?.errors) {
+      setFieldErrors(error.errors); 
+    } else {
+      setFieldErrors({});
+    }
+  }, [error]);
 
   const handleSubmitForm = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validateFields()) {
-      try {
-        await handleSubmit(e);
-        navigate('/Home');
-      } catch (error: any) {
-        setFieldErrors({ global: error.message });
-      }
-    }
+    await handleSubmit(e);
   };
 
   return (
@@ -46,8 +37,8 @@ const ProductForm: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         {id ? 'Editar Producto' : 'Crear Producto'}
       </Typography>
-      {fieldErrors.global && <Typography color="error">{fieldErrors.global}</Typography>}
-      
+      {error?.message && <Typography color="error">{error.message}</Typography>}
+
       <form onSubmit={handleSubmitForm}>
         <TextField
           label="Nombre"
@@ -55,22 +46,22 @@ const ProductForm: React.FC = () => {
           value={product.name || ''}
           onChange={handleChange}
           error={!!fieldErrors.name}
-          helperText={fieldErrors.name}
-          required
+          helperText={fieldErrors.name || ''}
           fullWidth
           margin="normal"
         />
+
         <TextField
           label="Descripción"
           name="description"
           value={product.description || ''}
           onChange={handleChange}
           error={!!fieldErrors.description}
-          helperText={fieldErrors.description}
-          required
+          helperText={fieldErrors.description || ''}
           fullWidth
           margin="normal"
         />
+
         <TextField
           label="Precio"
           name="price"
@@ -78,11 +69,11 @@ const ProductForm: React.FC = () => {
           value={product.price || ''}
           onChange={handleChange}
           error={!!fieldErrors.price}
-          helperText={fieldErrors.price}
-          required
+          helperText={fieldErrors.price || ''}
           fullWidth
           margin="normal"
         />
+
         <TextField
           label="Categoría"
           name="category_id"
@@ -90,8 +81,7 @@ const ProductForm: React.FC = () => {
           value={product.category_id || ''}
           onChange={handleCategoryChange}
           error={!!fieldErrors.category_id}
-          helperText={fieldErrors.category_id}
-          required
+          helperText={fieldErrors.category_id || ''}
           fullWidth
           margin="normal"
         >
@@ -101,14 +91,14 @@ const ProductForm: React.FC = () => {
             </MenuItem>
           ))}
         </TextField>
-        
+
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
           <Button variant="contained" color="primary" type="submit">
             {id ? 'Actualizar Producto' : 'Crear Producto'}
           </Button>
-          <Button 
-            variant="contained" 
-            color="secondary" 
+          <Button
+            variant="contained"
+            color="secondary"
             onClick={() => navigate('/Home')}
           >
             Cancelar

@@ -11,7 +11,7 @@ const EditProduct: React.FC = () => {
   const [editedProduct, setEditedProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<{ message?: string; errors?: { [key: string]: string } }>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +26,7 @@ const EditProduct: React.FC = () => {
 
         setLoading(false);
       } catch (error) {
-        setError((error as Error).message);
+        setError({ message: (error as Error).message });
         setLoading(false);
       }
     };
@@ -38,7 +38,7 @@ const EditProduct: React.FC = () => {
     if (editedProduct) {
       setEditedProduct({
         ...editedProduct,
-        [e.target.name as string]: e.target.value,
+        [e.target.name]: e.target.value,
       });
     }
   };
@@ -58,20 +58,30 @@ const EditProduct: React.FC = () => {
         await updateProduct(Number(id), editedProduct);
         alert('Producto actualizado correctamente.');
         navigate('/Home');
-      } catch (error) {
-        setError((error as Error).message);
+      } catch (error: any) {
+        if (error.errors) {
+          setError({
+            message: error.message,  
+            errors: error.errors    
+          });
+        } else {
+          setError({
+            message: error.message || 'Error inesperado al actualizar el producto'
+          });
+        }
       }
     }
   };
 
   if (loading) return <CircularProgress />;
-  if (error) return <Typography color="error">{error}</Typography>;
 
   return (
     <Box sx={{ maxWidth: 600, margin: 'auto', padding: 3, boxShadow: 3, borderRadius: 2 }}>
       <Typography variant="h4" gutterBottom>
         Editar Producto
       </Typography>
+
+      {error.message && <Typography color="error">{error.message}</Typography>}
 
       <Box component="form" noValidate autoComplete="off" sx={{ mt: 2 }}>
         <TextField
@@ -80,6 +90,8 @@ const EditProduct: React.FC = () => {
           variant="outlined"
           value={editedProduct?.name || ''}
           onChange={handleEditChange}
+          error={!!error.errors?.name} 
+          helperText={error.errors?.name || ''}
           fullWidth
           margin="normal"
         />
@@ -89,6 +101,8 @@ const EditProduct: React.FC = () => {
           variant="outlined"
           value={editedProduct?.description || ''}
           onChange={handleEditChange}
+          error={!!error.errors?.description}
+          helperText={error.errors?.description || ''}
           fullWidth
           margin="normal"
         />
@@ -99,6 +113,8 @@ const EditProduct: React.FC = () => {
           variant="outlined"
           value={editedProduct?.price || ''}
           onChange={handleEditChange}
+          error={!!error.errors?.price}
+          helperText={error.errors?.price || ''}
           fullWidth
           margin="normal"
         />
@@ -108,6 +124,8 @@ const EditProduct: React.FC = () => {
           select
           value={editedProduct?.category_id || ''}
           onChange={handleCategoryChange as unknown as React.ChangeEventHandler<HTMLInputElement>}
+          error={!!error.errors?.category_id} 
+          helperText={error.errors?.category_id || ''} 
           required
           fullWidth
           margin="normal"

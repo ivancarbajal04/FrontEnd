@@ -8,15 +8,8 @@ export const getCategories = async (): Promise<Category[]> => {
   try {
     const response = await axiosInstance.get<Category[]>(API_URL);
     return response.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.message || 'Error al obtener categorías';
-      throw new Error(errorMessage);
-    } else if (error instanceof Error) {
-      throw new Error(error.message);
-    } else {
-      throw new Error('Error desconocido al obtener categorías');
-    }
+  } catch (error: any) {
+    throw new Error(error.message || 'Error al obtener categorías');
   }
 };
 
@@ -24,15 +17,8 @@ export const getCategoryById = async (id: number): Promise<Category> => {
   try {
     const response = await axiosInstance.get<Category>(`${API_URL}/${id}`);
     return response.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.message || 'Error al obtener la categoría';
-      throw new Error(errorMessage);
-    } else if (error instanceof Error) {
-      throw new Error(error.message);
-    } else {
-      throw new Error('Error desconocido al obtener la categoría');
-    }
+  } catch (error: any) {
+    throw new Error(error.message || 'Error al obtener categoría');
   }
 };
 
@@ -40,15 +26,12 @@ export const createCategory = async (categoryData: Category): Promise<Category> 
   try {
     const response = await axiosInstance.post<Category>(API_URL, categoryData);
     return response.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.message || 'Error al crear la categoría';
-      throw new Error(errorMessage);
-    } else if (error instanceof Error) {
-      throw new Error(error.message);
-    } else {
-      throw new Error('Error desconocido al crear la categoría');
+  } catch (error: any) {
+    if (error.errors) {
+      console.log( {message: error.message, errors: error.errors} )
+      throw { message: error.message, errors: error.errors };
     }
+    throw new Error(error.message || 'Error al crear la categoría');
   }
 };
 
@@ -56,22 +39,20 @@ export const updateCategory = async (id: number, categoryData: Category): Promis
   try {
     const response = await axiosInstance.put<Category>(`${API_URL}/${id}`, categoryData);
     return response.data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.message || 'Error al actualizar la categoría';
-      throw new Error(errorMessage);
-    } else if (error instanceof Error) {
-      throw new Error(error.message);
-    } else {
-      throw new Error('Error desconocido al actualizar la categoría');
+  } catch (error: any) {
+    if (error.errors) {
+      console.log({ message: error.message, errors: error.errors })
+      throw { message: error.message, errors: error.errors };
+      
     }
+    throw new Error(error.message || 'Error al actualizar la categoría');
   }
 };
 
 export const deleteCategory = async (id: number, forceDelete: boolean = false): Promise<void> => {
   try {
     const response = await axios.delete(`http://localhost:8000/categories/${id}`, {
-      data: { forceDelete } 
+      data: { force_delete: forceDelete }
     });
     return response.data;
   } catch (error) {
@@ -86,3 +67,4 @@ export const deleteCategory = async (id: number, forceDelete: boolean = false): 
     }
   }
 };
+

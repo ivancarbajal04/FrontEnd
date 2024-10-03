@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Typography, TextField, Box, MenuItem, Container, Alert, CircularProgress } from '@mui/material';
-import { getProductById, updateProduct, deleteProduct } from '../services/ProductServices';
+import { Button, Typography, Box, Container, Alert, CircularProgress } from '@mui/material';
+import { getProductById, deleteProduct } from '../services/ProductServices';
 import { getCategories } from '../services/CategoryServices';
 import { Product, Category } from '../types/types';
 
@@ -13,7 +13,7 @@ const ProductDetail: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
-  const [editMode, setEditMode] = useState<boolean>(false);
+  const [editMode] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,40 +36,6 @@ const ProductDetail: React.FC = () => {
 
     fetchData();
   }, [id]);
-
-  const handleEditToggle = () => {
-    setEditMode(!editMode);
-  };
-
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (editedProduct) {
-      setEditedProduct({
-        ...editedProduct,
-        [e.target.name as string]: e.target.value,
-      });
-    }
-  };
-
-  const handleCategoryChange = (e: React.ChangeEvent<{ value: unknown }>) => {
-    if (editedProduct) {
-      setEditedProduct({
-        ...editedProduct,
-        category_id: e.target.value as number,
-      });
-    }
-  };
-
-  const handleEditSubmit = async () => {
-    if (id && editedProduct) {
-      try {
-        await updateProduct(Number(id), editedProduct);
-        alert("Producto actualizado correctamente.");
-        navigate('/Home');
-      } catch (error: any) {
-        setError(error.response?.data?.message || 'Error al actualizar el producto');
-      }
-    }
-  };
 
   const handleDelete = async () => {
     if (id) {
@@ -127,77 +93,12 @@ const ProductDetail: React.FC = () => {
               <Button variant="contained" color="primary" onClick={() => navigate('/Home')}>
                 Inicio
               </Button>
-              <Button variant="contained" color="primary" onClick={handleEditToggle}>
+              <Button variant="contained" color="primary" onClick={() => navigate(`/Editar/${product?.id}`)}>
                 Editar
               </Button>
               <Button variant="contained" color="secondary" onClick={handleDelete}>
                 Eliminar
               </Button>
-            </Box>
-          </>
-        )}
-
-        {product && editMode && (
-          <>
-            <Typography variant="h4" gutterBottom>
-              Editar Producto
-            </Typography>
-            <Box component="form" noValidate autoComplete="off" sx={{ mt: 2 }}>
-              <TextField
-                name="name"
-                label="Nombre"
-                variant="outlined"
-                value={editedProduct?.name || ''}
-                onChange={handleEditChange}
-                fullWidth
-                margin="normal"
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                name="description"
-                label="Descripción"
-                variant="outlined"
-                value={editedProduct?.description || ''}
-                onChange={handleEditChange}
-                fullWidth
-                margin="normal"
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                name="price"
-                label="Precio"
-                type="number"
-                variant="outlined"
-                value={editedProduct?.price || ''}
-                onChange={handleEditChange}
-                fullWidth
-                margin="normal"
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                label="Categoría"
-                name="category_id"
-                select
-                value={editedProduct?.category_id || ''}
-                onChange={handleCategoryChange}
-                fullWidth
-                margin="normal"
-                sx={{ mb: 2 }}
-              >
-                {categories.map((category: Category) => (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                <Button variant="contained" color="primary" onClick={handleEditSubmit}>
-                  Guardar Cambios
-                </Button>
-                <Button variant="contained" color="secondary" onClick={handleEditToggle}>
-                  Cancelar
-                </Button>
-              </Box>
             </Box>
           </>
         )}

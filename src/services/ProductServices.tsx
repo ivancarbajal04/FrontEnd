@@ -45,19 +45,29 @@ export const getProductById = async (id: number): Promise<Product> => {
 
 export const createProduct = async (productData: Product): Promise<Product> => {
   try {
-    productData.price = Number(productData.price);
+    productData.price = Number(productData.price); 
     const response = await axiosInstance.post<Product>(API_URL, productData);
     return response.data;
   } catch (error: any) {
+    if (error.errors) {
+      throw { message: error.message, errors: error.errors };
+    }
     throw new Error(error.message || 'Error al crear el producto');
   }
 };
+
+
 
 export const updateProduct = async (id: number, productData: Product): Promise<Product> => {
   try {
     const response = await axiosInstance.put<Product>(`${API_URL}/${id}`, productData);
     return response.data;
   } catch (error: any) {
+    if (error.errors) {
+      console.log({ message: error.message, errors: error.errors })
+      throw { message: error.message, errors: error.errors };
+      
+    }
     throw new Error(error.message || 'Error al actualizar el producto');
   }
 };

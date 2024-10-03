@@ -8,6 +8,7 @@ interface UseProductsReturn {
   rowsPerPage: number;
   totalProducts: number;
   error: string | null;
+  fieldErrors: Record<string, string>;
   handleDelete: (id: number) => Promise<void>;
   handleChangePage: (newPage: number) => void;
   handleChangeRowsPerPage: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -22,6 +23,7 @@ const useProducts = (initialRowsPerPage: number = 10): UseProductsReturn => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(initialRowsPerPage);
   const [totalProducts, setTotalProducts] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [sortBy, setSortBy] = useState<string>('name');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 
@@ -30,9 +32,13 @@ const useProducts = (initialRowsPerPage: number = 10): UseProductsReturn => {
       const response = await getProducts(page + 1, rowsPerPage, sortBy, order);
       setProducts(response.data);
       setTotalProducts(response.total);
+      setFieldErrors({});
       setError(null);
     } catch (error: any) {
-      setError(error.message);
+      const message = error.message || 'Error al cargar los productos.';
+      const errors = error.errors || {};
+      setError(message);
+      setFieldErrors(errors);
     }
   };
 
@@ -50,10 +56,14 @@ const useProducts = (initialRowsPerPage: number = 10): UseProductsReturn => {
     try {
       await deleteProductService(id);
       setProducts(products.filter(product => product.id !== id));
+      setFieldErrors({});
       setError(null);
       alert('Producto eliminado correctamente.');
     } catch (error: any) {
-      setError(error.message);
+      const message = error.message || 'Error al eliminar el producto.';
+      const errors = error.errors || {};
+      setError(message);
+      setFieldErrors(errors);
     }
   };
 
@@ -73,12 +83,13 @@ const useProducts = (initialRowsPerPage: number = 10): UseProductsReturn => {
     rowsPerPage,
     totalProducts,
     error,
+    fieldErrors,
     handleDelete,
     handleChangePage,
     handleChangeRowsPerPage,
     handleSortChange,
     sortBy,
-    order
+    order,
   };
 };
 
